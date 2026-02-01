@@ -2,6 +2,7 @@ package crlinkingbot;
 
 import crlinkingbot.api.QueueAPIServer;
 import crlinkingbot.listeners.LinkCommand;
+import crlinkingbot.listeners.LinkDirectlyCommand;
 import crlinkingbot.queue.RequestQueue;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -44,20 +45,37 @@ public class Bot {
 			JDA jda = JDABuilder.createDefault(botToken)
 					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
 							GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS)
-					.addEventListeners(new LinkCommand(requestQueue)).build();
+					.addEventListeners(new LinkCommand(requestQueue), new LinkDirectlyCommand()).build();
 
 			jda.awaitReady();
 
-			// Register slash commands
-			jda.updateCommands().addCommands(Commands
-					.slash("link", "Link einen Clash Royale Account über eine Nachricht mit Screenshots")
-					.addOption(OptionType.STRING, "message_link", "Link zur Nachricht mit den CR Screenshots", true)
-					.addOptions(
-							new OptionData(OptionType.STRING, "noping", "Ping abschalten").addChoice("true", "true")))
-					.queue();
+			// Register slash commands to specific guild
+			String guildId = "1108449987827876022";
+			var guild = jda.getGuildById(guildId);
+			if (guild != null) {
+				System.out.println("Registering slash commands for guild: " + guild.getName() + " (" + guildId + ")");
+				guild.updateCommands().addCommands(
+						Commands.slash("link", "Link einen Clash Royale Account über eine Nachricht mit Screenshots")
+								.addOption(OptionType.STRING, "message_link",
+										"Link zur Nachricht mit den CR Screenshots",
+										true)
+								.addOptions(
+										new OptionData(OptionType.STRING, "noping", "Ping abschalten").addChoice("true",
+												"true")),
+						Commands.slash("linkdirectly", "Direktes Verlinken eines Discord-Users zu einem Player-Tag")
+								.addOption(OptionType.USER, "user", "Der zu verlinkende Discord-User", true)
+								.addOption(OptionType.STRING, "tag", "Der Clash Royale Player-Tag (z.B. #ABC123)", true)
+								.addOptions(
+										new OptionData(OptionType.STRING, "noping", "Ping abschalten").addChoice("true",
+												"true")))
+						.queue();
+				System.out.println("Slash commands registered successfully for guild " + guildId);
+			} else {
+				System.out.println(
+						"WARNING: Guild " + guildId + " not found. Could not register guild-specific commands.");
+			}
 
 			System.out.println("CR Linking Bot is ready! Logged in as: " + jda.getSelfUser().getAsTag());
-			System.out.println("Slash command '/link' registered successfully");
 
 			// Initialize and start queue API server
 			System.out.println("Starting queue API server...");

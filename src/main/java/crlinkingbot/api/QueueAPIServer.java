@@ -136,6 +136,7 @@ public class QueueAPIServer {
 	 * Handler for GET /api/queue/pending
 	 */
 	private class PendingHandler implements HttpHandler {
+		@SuppressWarnings("null")
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
 			System.out.println("API Request: GET /api/queue/pending from " + exchange.getRemoteAddress());
@@ -168,23 +169,26 @@ public class QueueAPIServer {
 					// Dynamically fetch image URLs from Discord message
 					List<String> imageUrls = new ArrayList<>();
 					try {
-						MessageChannelUnion channel = jda.getChannelById(MessageChannelUnion.class, request.getChannelId());
+						MessageChannelUnion channel = jda.getChannelById(MessageChannelUnion.class,
+								request.getChannelId());
 						if (channel != null) {
 							try {
 								Message message = channel.retrieveMessageById(request.getMessageId()).complete();
 								imageUrls = message.getAttachments().stream()
-									.filter(attachment -> attachment.isImage())
-									.map(attachment -> attachment.getUrl())
-									.collect(Collectors.toList());
+										.filter(attachment -> attachment.isImage())
+										.map(attachment -> attachment.getUrl())
+										.collect(Collectors.toList());
 							} catch (Exception e) {
-								System.out.println("Warning: Could not retrieve message " + request.getMessageId() + 
-									" in channel " + request.getChannelId() + " - " + e.getMessage());
+								System.out.println("Warning: Could not retrieve message " + request.getMessageId() +
+										" in channel " + request.getChannelId() + " - " + e.getMessage());
 							}
 						} else {
-							System.out.println("Warning: Channel " + request.getChannelId() + " not found for request " + request.getId());
+							System.out.println("Warning: Channel " + request.getChannelId() + " not found for request "
+									+ request.getId());
 						}
 					} catch (Exception e) {
-						System.out.println("Warning: Error fetching images for request " + request.getId() + " - " + e.getMessage());
+						System.out.println("Warning: Error fetching images for request " + request.getId() + " - "
+								+ e.getMessage());
 					}
 
 					JSONObject reqJson = new JSONObject();
@@ -224,6 +228,7 @@ public class QueueAPIServer {
 	 * Handler for POST /api/queue/result
 	 */
 	private class ResultHandler implements HttpHandler {
+		@SuppressWarnings("null")
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
 			System.out.println("API Request: POST /api/queue/result from " + exchange.getRemoteAddress());

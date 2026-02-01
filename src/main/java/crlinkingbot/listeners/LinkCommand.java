@@ -32,6 +32,7 @@ public class LinkCommand extends ListenerAdapter {
 		this.requestQueue = requestQueue;
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		if (!event.getName().equals("link")) {
