@@ -93,4 +93,119 @@ public class LostCRManagerClient {
             return errorResult;
         }
     }
+
+    /**
+     * Search linked players by query string for autocomplete
+     *
+     * @param query The partial player name or tag to search for
+     * @return JSONObject with a "players" array or error info
+     */
+    public static JSONObject searchLinkedPlayers(String query) {
+        try {
+            String encodedQuery = java.net.URLEncoder.encode(query, StandardCharsets.UTF_8);
+            String apiUrl = Bot.getLostCRManagerUrl() + "/api/search-linked?q=" + encodedQuery;
+
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Bearer " + Bot.getLostCRManagerSecret());
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+
+            int responseCode = connection.getResponseCode();
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(
+                            responseCode >= 200 && responseCode < 300
+                                    ? connection.getInputStream()
+                                    : connection.getErrorStream(),
+                            StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+            }
+
+            JSONObject result = new JSONObject();
+            result.put("statusCode", responseCode);
+            result.put("success", responseCode >= 200 && responseCode < 300);
+            if (!response.toString().isEmpty()) {
+                try {
+                    JSONObject responseJson = new JSONObject(response.toString());
+                    result.put("data", responseJson);
+                } catch (Exception e) {
+                    result.put("message", response.toString());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("Error calling lostcrmanager search-linked API: " + e);
+            JSONObject errorResult = new JSONObject();
+            errorResult.put("success", false);
+            errorResult.put("error", e.getMessage());
+            return errorResult;
+        }
+    }
+
+    /**
+     * Remove a player's clan membership and link
+     *
+     * @param playerTag The Clash Royale player tag (e.g., #ABC123)
+     * @return JSONObject with response
+     */
+    public static JSONObject removePlayer(String playerTag) {
+        try {
+            String apiUrl = Bot.getLostCRManagerUrl() + "/api/remove";
+
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("tag", playerTag);
+
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + Bot.getLostCRManagerSecret());
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(
+                            responseCode >= 200 && responseCode < 300
+                                    ? connection.getInputStream()
+                                    : connection.getErrorStream(),
+                            StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+            }
+
+            JSONObject result = new JSONObject();
+            result.put("statusCode", responseCode);
+            result.put("success", responseCode >= 200 && responseCode < 300);
+            if (!response.toString().isEmpty()) {
+                try {
+                    JSONObject responseJson = new JSONObject(response.toString());
+                    result.put("data", responseJson);
+                } catch (Exception e) {
+                    result.put("message", response.toString());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("Error calling lostcrmanager remove API: " + e);
+            JSONObject errorResult = new JSONObject();
+            errorResult.put("success", false);
+            errorResult.put("error", e.getMessage());
+            return errorResult;
+        }
+    }
 }

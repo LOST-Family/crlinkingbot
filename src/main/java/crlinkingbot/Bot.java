@@ -3,6 +3,7 @@ package crlinkingbot;
 import crlinkingbot.api.QueueAPIServer;
 import crlinkingbot.listeners.LinkCommand;
 import crlinkingbot.listeners.LinkDirectlyCommand;
+import crlinkingbot.listeners.RemoveCommand;
 import crlinkingbot.queue.RequestQueue;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -45,7 +46,7 @@ public class Bot {
 			JDA jda = JDABuilder.createDefault(botToken)
 					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
 							GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS)
-					.addEventListeners(new LinkCommand(requestQueue), new LinkDirectlyCommand()).build();
+					.addEventListeners(new LinkCommand(requestQueue), new LinkDirectlyCommand(), new RemoveCommand()).build();
 
 			jda.awaitReady();
 
@@ -67,7 +68,12 @@ public class Bot {
 								.addOption(OptionType.STRING, "tag", "Der Clash Royale Player-Tag (z.B. #ABC123)", true)
 								.addOptions(
 										new OptionData(OptionType.STRING, "noping", "Ping abschalten").addChoice("true",
-												"true")))
+												"true")),
+						Commands.slash("remove", "Entfernt die Clan-Zugehörigkeit und Verlinkung eines Spielers")
+								.addOptions(
+										new OptionData(OptionType.STRING, "player",
+												"Der Spieler, welcher entfernt werden soll", true)
+												.setAutoComplete(true)))
 						.queue();
 				System.out.println("Slash commands registered successfully for guild " + guildId);
 			} else {
