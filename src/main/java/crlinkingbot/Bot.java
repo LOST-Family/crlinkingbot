@@ -1,5 +1,9 @@
 package crlinkingbot;
 
+import java.io.IOException;
+
+import javax.security.auth.login.LoginException;
+
 import crlinkingbot.api.QueueAPIServer;
 import crlinkingbot.listeners.LinkCommand;
 import crlinkingbot.listeners.LinkDirectlyCommand;
@@ -96,9 +100,9 @@ public class Bot {
 				}
 			}));
 
-		} catch (Exception e) {
+		} catch (final IOException | InterruptedException | LoginException e) {
 			System.out.println("Failed to initialize JDA: " + e);
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			System.exit(1);
 		}
 	}
