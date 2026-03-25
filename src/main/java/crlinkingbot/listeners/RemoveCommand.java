@@ -1,5 +1,11 @@
 package crlinkingbot.listeners;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import crlinkingbot.services.LostCRManagerClient;
 import crlinkingbot.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Member;
@@ -9,11 +15,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Command listener for removing a player's clan membership and Discord link.
@@ -65,7 +66,7 @@ public class RemoveCommand extends ListenerAdapter {
                 return;
             }
 
-            String playerTag = tagOption.getAsString();
+            String playerTag = tagOption.getAsString().toUpperCase().replace("O", "0");
 
             // Call lostcrmanager API to remove the player
             JSONObject removeResult = LostCRManagerClient.removePlayer(playerTag);
