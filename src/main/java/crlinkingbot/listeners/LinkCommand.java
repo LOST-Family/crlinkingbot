@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
@@ -155,11 +157,12 @@ public class LinkCommand extends ListenerAdapter {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					msg.delete().queue();
+					msg.delete().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 				});
 				finalChannel.sendMessage(successMessage).queue(msg -> {
 					if (!finalping) {
-						msg.delete().queueAfter(10, java.util.concurrent.TimeUnit.SECONDS);
+						msg.delete().queueAfter(10, java.util.concurrent.TimeUnit.SECONDS, null,
+								new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 					}
 				});
 
