@@ -79,6 +79,8 @@ Edit `.env` and set the following variables:
 - `GOOGLE_GENAI_API_KEY`: Your Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 - `LOSTCRMANAGER_API_URL`: URL to your lostcrmanager API (e.g., `http://localhost:7070`)
 - `LOSTCRMANAGER_API_SECRET`: Shared secret for API authentication
+- `LOSTCRMANAGER_MANAGE_URL` (optional): URL to the lostcrmanager management API (RestApiServer, e.g., `http://localhost:8060`). Required for the `/restartcrmanager` command.
+- `LOSTCRMANAGER_MANAGE_TOKEN` (optional): Token for the management API (the `REST_API_TOKEN` of lostcrmanager)
 - `QUEUE_API_PORT`: Port for the queue API server (default: `8090`)
 - `QUEUE_API_SECRET`: Secret token for authenticating queue API requests
 

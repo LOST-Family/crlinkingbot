@@ -148,6 +148,77 @@ public class LostCRManagerClient {
     }
 
     /**
+     * Request a restart of the lostcrmanager bot via its management API.
+     * Permission (admin or restart role) is enforced server-side based on the
+     * given Discord user ID.
+     *
+     * @param discordUserId The Discord user ID of the user requesting the restart
+     * @return JSONObject with response
+     */
+    public static JSONObject restartCRManager(String discordUserId) {
+        try {
+            String apiUrl = Bot.getLostCRManagerManageUrl() + "/api/manage/restart";
+            System.out.println("Calling lostcrmanager restart API: " + apiUrl + " for user " + discordUserId);
+
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("discordUserId", discordUserId);
+
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            String manageToken = Bot.getLostCRManagerManageToken();
+            if (manageToken != null && !manageToken.isEmpty()) {
+                connection.setRequestProperty("Authorization", "Bearer " + manageToken);
+            }
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(
+                            responseCode >= 200 && responseCode < 300
+                                    ? connection.getInputStream()
+                                    : connection.getErrorStream(),
+                            StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+            }
+
+            System.out.println("Restart API response (" + responseCode + "): " + response);
+
+            JSONObject result = new JSONObject();
+            result.put("statusCode", responseCode);
+            result.put("success", responseCode >= 200 && responseCode < 300);
+            if (!response.toString().isEmpty()) {
+                try {
+                    JSONObject responseJson = new JSONObject(response.toString());
+                    result.put("data", responseJson);
+                } catch (Exception e) {
+                    result.put("message", response.toString());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("Error calling lostcrmanager restart API: " + e);
+            JSONObject errorResult = new JSONObject();
+            errorResult.put("success", false);
+            errorResult.put("connectionError", true);
+            errorResult.put("error", e.getMessage());
+            return errorResult;
+        }
+    }
+
+    /**
      * Remove a player's clan membership and link
      *
      * @param playerTag The Clash Royale player tag (e.g., #ABC123)
