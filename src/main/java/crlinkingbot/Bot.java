@@ -7,6 +7,7 @@ import javax.security.auth.login.LoginException;
 import crlinkingbot.api.QueueAPIServer;
 import crlinkingbot.listeners.LinkCommand;
 import crlinkingbot.listeners.LinkDirectlyCommand;
+import crlinkingbot.listeners.PhishTrap;
 import crlinkingbot.listeners.RemoveCommand;
 import crlinkingbot.listeners.RestartCommand;
 import crlinkingbot.queue.RequestQueue;
@@ -54,7 +55,7 @@ public class Bot {
 					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
 							GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS)
 					.addEventListeners(new LinkCommand(requestQueue), new LinkDirectlyCommand(), new RemoveCommand(),
-							new RestartCommand()).build();
+							new RestartCommand(), new PhishTrap()).build();
 
 			jda.awaitReady();
 
