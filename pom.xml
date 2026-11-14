@@ -12,7 +12,7 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.17.2</jackson.version>
+		<jackson.version>2.22.4</jackson.version>
 	</properties>
 
 	<dependencyManagement>
@@ -24,6 +24,31 @@
 				<version>${jackson.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- Bekannte Lücken in transitiven Abhängigkeiten (OSV-Prüfung 13.11.2026):
+			     JDA alpha.14 bringt okhttp 4.9.3 mit okio 2.8.0 und kotlin-stdlib 1.4.10,
+			     google-api-client guava 31.1, google-genai protobuf 3.25.1. -->
+			<dependency>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-bom</artifactId>
+				<version>1.9.25</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>4.12.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>33.5.0-jre</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>3.25.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -84,7 +109,7 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20240303</version>
+			<version>20260814</version>
 		</dependency>
 
 		<!-- Logging -->
