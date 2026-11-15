@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -61,7 +62,8 @@ public class QueueAPIServer {
 		}
 
 		// Create HTTP server
-		this.server = HttpServer.create(new InetSocketAddress(port), 0);
+		this.server = HttpServer.create(new InetSocketAddress(bindAdresse(), port), 0);
+		System.out.println("Lausche auf " + bindAdresse().getHostAddress() + ":" + port);
 
 		// Register endpoints
 		server.createContext("/api/queue/pending", new PendingHandler());
@@ -519,5 +521,17 @@ public class QueueAPIServer {
 				sendJsonResponse(exchange, 500, error);
 			}
 		}
+	}
+
+	/**
+	 * Adresse, an die die HTTP-Server dieses Bots binden. Vorgabe ist die Schleife
+	 * (127.0.0.1): alle Nutzer (Website-Backend, Caddy, Wache, andere Bots) fragen
+	 * dort. Ohne Adresse band der Server an alle Schnittstellen und war im Heimnetz
+	 * und ueber die globale IPv6-Adresse erreichbar. CRLINKINGBOT_API_BIND=0.0.0.0 stellt das
+	 * alte Verhalten wieder her.
+	 */
+	public static InetAddress bindAdresse() throws java.net.UnknownHostException {
+		final String bind = System.getenv("CRLINKINGBOT_API_BIND");
+		return bind == null || bind.isBlank() ? InetAddress.getLoopbackAddress() : InetAddress.getByName(bind.trim());
 	}
 }
