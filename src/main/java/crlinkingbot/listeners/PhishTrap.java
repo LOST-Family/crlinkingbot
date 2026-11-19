@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
@@ -114,7 +115,10 @@ public class PhishTrap extends ListenerAdapter {
         }
 
         if (channel instanceof ThreadChannel) {
-            return ((ThreadChannel) channel).getParentChannel().getId().equals(TRAP_CHANNEL_ID);
+            // JDA 5.0.0-alpha.14 kennt keine Forum-Kanäle: Beiträge in einem Forum
+            // haben hier keinen Elternkanal. Ein solcher Thread liegt nie unter der Falle.
+            IThreadContainerUnion parent = ((ThreadChannel) channel).getParentChannel();
+            return parent != null && parent.getId().equals(TRAP_CHANNEL_ID);
         }
 
         return false;
@@ -168,6 +172,15 @@ public class PhishTrap extends ListenerAdapter {
         int unreachable = 0;
 
         for (GuildMessageChannel channel : collectMessageChannels(guild)) {
+            // Threads in Forum-Kanälen haben unter JDA 5.0.0-alpha.14 keinen Elternkanal
+            // und damit keine Rechte-Grundlage; hasPermission warf hier "Channel may not
+            // be null" und brach die ganze Säuberung ab (Oktober bis 19.11.2026 bei
+            // jeder Auslösung).
+            if (channel instanceof ThreadChannel && ((ThreadChannel) channel).getParentChannel() == null) {
+                unreachable++;
+                continue;
+            }
+
             if (!self.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY,
                     Permission.MESSAGE_MANAGE)) {
                 unreachable++;
