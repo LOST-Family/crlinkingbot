@@ -155,6 +155,13 @@ public class RequestQueue {
 				jsonArray.put(request.toJSON());
 			}
 
+			// FileWriter legt den Ordner nicht selbst an; ohne ihn ginge jede
+			// Anfrage beim nächsten Neustart verloren.
+			final File ordner = queueFile.getParentFile();
+			if (ordner != null && !ordner.isDirectory() && !ordner.mkdirs()) {
+				System.out.println("Error saving queue to file: Ordner " + ordner + " lässt sich nicht anlegen");
+			}
+
 			try (FileWriter writer = new FileWriter(queueFile, StandardCharsets.UTF_8)) {
 				writer.write(jsonArray.toString(2)); // Pretty print with indent
 			}

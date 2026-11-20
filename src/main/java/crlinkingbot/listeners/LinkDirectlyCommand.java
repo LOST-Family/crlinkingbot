@@ -1,6 +1,7 @@
 package crlinkingbot.listeners;
 
 import crlinkingbot.services.LostCRManagerClient;
+import crlinkingbot.util.LinkAntwort;
 import crlinkingbot.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -63,10 +64,12 @@ public class LinkDirectlyCommand extends ListenerAdapter {
 
             // Call lostcrmanager API
             String userId = targetUser.getId();
+            playerTag = playerTag.trim();
             JSONObject linkResult = LostCRManagerClient.linkPlayer(playerTag, userId);
 
             if (linkResult.getBoolean("success")) {
-                String playerName = linkResult.getJSONObject("data").getString("playerName");
+                String playerName = LinkAntwort.spielerName(linkResult, playerTag);
+                playerTag = LinkAntwort.tag(linkResult, playerTag);
                 String successEmbedMsg = String.format(
                         "Account wurde erfolgreich verknüpft!\n\n**Spieler-Name:** `%s`\n"
                                 + "**Spieler-Tag:** `%s`\n" + "**Discord User:** <@%s>",
@@ -100,10 +103,9 @@ public class LinkDirectlyCommand extends ListenerAdapter {
 
             } else {
                 String errorMsg = "Es gab einen Fehler beim Verknüpfen des Accounts.";
-                if (linkResult.has("data") && linkResult.getJSONObject("data").has("message")) {
-                    errorMsg += "\n\n**Fehler:** " + linkResult.getJSONObject("data").getString("message");
-                } else if (linkResult.has("error")) {
-                    errorMsg += "\n\n**Fehler:** " + linkResult.getString("error");
+                String grund = LinkAntwort.fehlergrund(linkResult);
+                if (grund != null) {
+                    errorMsg += "\n\n**Fehler:** " + grund;
                 }
                 event.getHook().editOriginalEmbeds(MessageUtil.createErrorEmbed("Verknüpfung fehlgeschlagen", errorMsg))
                         .queue();

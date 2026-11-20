@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import crlinkingbot.queue.LinkingRequest;
 import crlinkingbot.queue.RequestQueue;
 import crlinkingbot.services.LostCRManagerClient;
+import crlinkingbot.util.LinkAntwort;
 import crlinkingbot.util.MessageUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -331,7 +332,7 @@ public class QueueAPIServer {
 
 						if (linkResult.getBoolean("success")) {
 							System.out.println(linkResult.toString());
-							String playerName = linkResult.getJSONObject("data").getString("playerName");
+							String playerName = LinkAntwort.spielerName(linkResult, playerTag);
 							String successMsg = String.format(
 									"Account wurde erfolgreich verknüpft!\n\n**Spieler-Name:** `%s`\n"
 											+ "**Spieler-Tag:** `%s`\n" + "**Discord User:** <@%s>",
@@ -356,8 +357,9 @@ public class QueueAPIServer {
 
 						} else {
 							String errorMsg = "Es gab einen Fehler beim Verknüpfen des Accounts. \nEin Vize muss sich manuell um die Anfrage kümmern.";
-							if (linkResult.has("data") && linkResult.getJSONObject("data").has("message")) {
-								errorMsg += "\n\n**Fehler:** " + linkResult.getJSONObject("data").getString("message");
+							String grund = LinkAntwort.fehlergrund(linkResult);
+							if (grund != null) {
+								errorMsg += "\n\n**Fehler:** " + grund;
 							}
 							MessageUtil.sendError(channel, "Verknüpfung fehlgeschlagen", errorMsg);
 						}
