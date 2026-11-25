@@ -27,7 +27,8 @@
 			</dependency>
 			<!-- Bekannte Lücken in transitiven Abhängigkeiten (OSV-Prüfung 13.11.2026):
 			     JDA alpha.14 bringt okhttp 4.9.3 mit okio 2.8.0 und kotlin-stdlib 1.4.10,
-			     google-api-client guava 31.1, google-genai protobuf 3.25.1. -->
+			     google-api-client guava 31.1, google-genai protobuf 3.25.1.
+			     25.11.2026: guava 33.7.2 (GHSA-xxph-c9ww-hj94, Java-Deserialisierung, hier ungenutzt). -->
 			<dependency>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-bom</artifactId>
@@ -43,7 +44,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>33.5.0-jre</version>
+				<version>33.7.2-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.protobuf</groupId>
